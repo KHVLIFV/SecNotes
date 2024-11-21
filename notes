@@ -1,0 +1,62 @@
+Author: Winiga Youssouf
+Nickname: Spyd3r
+Email: youssoufwiniga@gmail.com
+
+
+##################################### OFFENSIVE & DEFENSIVE SECURITY :: CTF CHALLENGES :: NOTES ########################################
+
+                                            
+                                            <-- STEGANOGRAPHY -->
+
+                                                >>> AUDIO <<<
+
+- Audio Stegano
+- Audacity
+- Sonic Visualizer
+
+
+                                                >>> IMAGE <<<
+
+- Jsteg (jpeg)
+- Zsteg (png, bmp)
+- Stegseek
+- Steghide
+- Stegcracker
+
+
+
+
+############################## WINDOWS POWERSHELL COMMANDS ###############################
+
+
+system informations:
+
+
+ Get-ComputerInfo -Property "Os*"
+ Get-LocalUser
+
+ #first ip connected
+ HKEY_LOCAL_MACHINE > SOFTWARE > Microsoft > Windows > CurrentVersion > Run
+
+ #accounts had administrative privileges
+ Get-LocalGroupMember -Group “Administrators”
+
+ #scheduled task
+ Get-ScheduledTask | where {$_.TaskPath -eq “\”}
+
+ #Task executed
+ $task = Get-ScheduledTask | Where TaskName -EQ “Clean file system”
+
+
+
+ ######################################## GPG DECRYPT ###################################
+
+#Ajouter la clé à GPG
+gpg --import private.asc
+
+#Voir la liste des clé
+gpg --list-secret-keys
+
+#Décrypter le fichier
+gpg --decrypt backup.pgp
+
