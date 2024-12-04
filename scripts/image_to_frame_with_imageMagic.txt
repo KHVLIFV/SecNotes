@@ -1,0 +1,5 @@
+#diviser en 9 frame 3x3 avec image magic
+convert original_image.png -crop 33.33%x33.33% +repage frame_%d.png
+
+#créer un GIF avec ces frames
+convert -delay 50 -loop 0 frame_*.png output.gif

